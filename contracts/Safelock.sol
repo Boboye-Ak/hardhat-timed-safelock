@@ -9,7 +9,7 @@ contract Safelock {
         uint256 amount;
         uint256 createdTime;
         uint256 timeLength;
-        bool broken;
+        bool isBroken;
     }
 
     //state variables
@@ -17,9 +17,11 @@ contract Safelock {
     uint256 immutable i_safeId;
     uint256 s_totalBalance;
     address immutable i_safeLockOwner;
+    address immutable i_safeLockFactoryAddress;
 
     //Custom Errors
     error Safe__onlyOwner();
+    error Safe__notYetOpen();
 
     //Events
     event SafeCreated(address indexed creator, uint256 indexed amount, uint256 timeLength);
@@ -33,9 +35,14 @@ contract Safelock {
     }
 
     //Constructor
-    constructor(uint256 safeId, address safeLockOwner) {
+    constructor(
+        uint256 safeId,
+        address safeLockOwner,
+        address safeLockFactoryAddress
+    ) {
         i_safeId = safeId;
         i_safeLockOwner = safeLockOwner;
+        i_safeLockFactoryAddress = safeLockFactoryAddress;
     }
 
     function createSafe(uint256 _amount, uint256 _timeLength) public payable onlyOwner {
@@ -45,5 +52,15 @@ contract Safelock {
         s_safes.push(newSafe);
         s_totalBalance += msg.value;
         emit SafeCreated(msg.sender, msg.value, _timeLength);
+    }
+
+    function withdraw(uint256 index) public payable onlyOwner {
+        require(index < s_safes.length);
+        if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
+            revert Safe__notYetOpen();
+        }
+        s_safes[index].amount = 0;
+        s_safes[index].isBroken = true;
+        payable(msg.sender).transfer(s_safes[index].amount);
     }
 }
