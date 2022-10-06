@@ -22,6 +22,7 @@ contract Safelock {
     error Safe__onlyOwner();
 
     //Events
+    event SafeCreated(address indexed creator, uint256 indexed amount, uint256 timeLength);
 
     //Modifiers
     modifier onlyOwner() {
@@ -42,6 +43,7 @@ contract Safelock {
         require(_timeLength > 0);
         Safe memory newSafe = Safe(_amount, block.timestamp, _timeLength, false);
         s_safes.push(newSafe);
-        s_totalBalance+=msg.value;
+        s_totalBalance += msg.value;
+        emit SafeCreated(msg.sender, msg.value, _timeLength);
     }
 }
