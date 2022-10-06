@@ -2,10 +2,9 @@
 pragma solidity ^0.8.7;
 
 import "hardhat/console.sol";
+import "./Safelock.sol";
 
 contract SafelockFactory {
-    constructor() {
-        
-    }
+    
+    constructor() {}
 }
-
