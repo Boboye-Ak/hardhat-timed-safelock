@@ -5,6 +5,12 @@ import "hardhat/console.sol";
 import "./Safelock.sol";
 
 contract SafelockFactory {
-    
-    constructor() {}
+    //State Variables
+    mapping(address => uint256) s_hasSafelock;
+    uint256 s_latestSafelockId;
+    Safelock[] s_safelocks; 
+
+    constructor() {
+        s_latestSafelockId = 0;
+    }
 }
