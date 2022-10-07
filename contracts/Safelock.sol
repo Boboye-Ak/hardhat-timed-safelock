@@ -25,6 +25,7 @@ contract Safelock {
 
     //Events
     event SafeCreated(address indexed creator, uint256 indexed amount, uint256 timeLength);
+    event SafeWithdrawn(address indexed withdrawer, uint256 indexed index, uint256 indexed amount);
 
     //Modifiers
     modifier onlyOwner() {
@@ -59,8 +60,20 @@ contract Safelock {
         if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
             revert Safe__notYetOpen();
         }
+        uint256 amount = s_safes[index].amount;
+        s_totalBalance -= s_safes[index].amount;
         s_safes[index].amount = 0;
         s_safes[index].isBroken = true;
         payable(msg.sender).transfer(s_safes[index].amount);
+        emit SafeWithdrawn(msg.sender, index, amount);
+    }
+
+    //View Functions
+    function getSafes() public view returns (Safe[] memory) {
+        return s_safes;
+    }
+    function getTotalBalance()  public view returns (uint256) {
+        return s_totalBalance;
+        
     }
 }
