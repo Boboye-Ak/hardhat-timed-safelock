@@ -78,4 +78,9 @@ contract Safelock {
     function getTotalBalance() public view returns (uint256) {
         return s_totalBalance;
     }
+
+    function getSafeBalance(uint256 index) public view returns (uint256) {
+        uint256 balance = s_safes[index].amount;
+        return balance;
+    }
 }
