@@ -21,7 +21,7 @@ contract Safelock {
 
     //Custom Errors
     error Safe__onlyOwner();
-    error Safe__notYetOpen();
+    error Safe__notYetOpen(uint256 timeLeft);
 
     //Events
     event SafeCreated(address indexed creator, uint256 indexed amount, uint256 timeLength);
@@ -58,7 +58,9 @@ contract Safelock {
     function withdraw(uint256 index) public payable onlyOwner {
         require(index < s_safes.length);
         if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
-            revert Safe__notYetOpen();
+            revert Safe__notYetOpen(
+                s_safes[index].createdTime + s_safes[index].timeLength - block.timestamp
+            );
         }
         uint256 amount = s_safes[index].amount;
         s_totalBalance -= s_safes[index].amount;
@@ -72,8 +74,8 @@ contract Safelock {
     function getSafes() public view returns (Safe[] memory) {
         return s_safes;
     }
-    function getTotalBalance()  public view returns (uint256) {
+
+    function getTotalBalance() public view returns (uint256) {
         return s_totalBalance;
-        
     }
 }
