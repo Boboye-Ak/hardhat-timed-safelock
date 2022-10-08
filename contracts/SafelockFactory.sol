@@ -18,12 +18,17 @@ contract SafelockFactory {
     }
 
     //Pure Functions
-    function createSafelock() public {
+    function createSafelock(string memory safelockOwnerName) public {
         if (s_hasSafelock[msg.sender] != 0) {
             revert SafelockFactory__AlreadyHasSafelock();
         }
         s_latestSafelockId += 1;
-        Safelock newSafelock = new Safelock(s_latestSafelockId, msg.sender, address(this));
+        Safelock newSafelock = new Safelock(
+            s_latestSafelockId,
+            msg.sender,
+            address(this),
+            safelockOwnerName
+        );
         s_hasSafelock[msg.sender] = s_latestSafelockId;
         s_safelocks.push(newSafelock);
     }

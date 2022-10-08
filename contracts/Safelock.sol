@@ -18,6 +18,7 @@ contract Safelock {
     uint256 s_totalBalance;
     address immutable i_safeLockOwner;
     address immutable i_safeLockFactoryAddress;
+    string s_ownerFirstName;
 
     //Custom Errors
     error Safe__onlyOwner();
@@ -39,11 +40,13 @@ contract Safelock {
     constructor(
         uint256 safeId,
         address safeLockOwner,
-        address safeLockFactoryAddress
+        address safeLockFactoryAddress,
+        string memory ownerFirstName
     ) {
         i_safeId = safeId;
         i_safeLockOwner = safeLockOwner;
         i_safeLockFactoryAddress = safeLockFactoryAddress;
+        s_ownerFirstName = ownerFirstName;
     }
 
     function createSafe(uint256 _amount, uint256 _timeLength) public payable onlyOwner {
@@ -82,5 +85,9 @@ contract Safelock {
     function getSafeBalance(uint256 index) public view returns (uint256) {
         uint256 balance = s_safes[index].amount;
         return balance;
+    }
+    function getOwnerFirstName()  public view returns (string memory) {
+        return s_ownerFirstName;
+        
     }
 }
