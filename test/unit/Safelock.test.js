@@ -19,7 +19,21 @@ const { assert, expect } = require("chai")
               safelockAddress = await safelockFactory.getMySafelockAddress()
               safelock = await ethers.getContractAt("Safelock", safelockAddress, user)
           })
+          describe("SafelockFactory", () => {
+              it("doesn't allow multiple safelock creation by the same wallet", async () => {
+                  await expect(safelockFactory.createSafelock(firstName)).to.be.revertedWith(
+                      "SafelockFactory__AlreadyHasSafelock"
+                  )
+              })
+          })
           describe("createSafe", () => {
+              it("only allows the owner to call", async () => {
+                  const attacker = (await ethers.getSigners())[2]
+                  const attackerSafelock = await safelock.connect(attacker)
+                  await expect(
+                      attackerSafelock.createSafe(timeLength, { value: amount })
+                  ).to.be.revertedWith("Safe__onlyOwner")
+              })
               it("reverts if value is zero", async () => {
                   await expect(safelock.createSafe(timeLength)).to.be.reverted
               })
@@ -29,8 +43,80 @@ const { assert, expect } = require("chai")
               it("adds a new safe to the safe array", async () => {
                   await safelock.createSafe(timeLength, { value: amount })
                   const safes = await safelock.getSafes()
-                  console.log(safes)
                   assert.equal(safes.length, 1)
+              })
+              it("increases the safe balance", async () => {
+                  await safelock.createSafe(timeLength, { value: amount })
+                  const newSafeBalance = (await safelock.getSafeBalance("0")).toString()
+                  assert.equal(amount, newSafeBalance)
+              })
+              it("increases the total balance", async () => {
+                  await safelock.createSafe(timeLength, { value: amount })
+                  const newTotalBalance = (await safelock.getTotalBalance()).toString()
+                  assert.equal(amount, newTotalBalance)
+              })
+              it("emits an event", async () => {
+                  expect(await safelock.createSafe(timeLength, { value: amount })).to.emit(
+                      "SafeCreated"
+                  )
+              })
+          })
+          describe("withdraw", () => {
+              beforeEach(async () => {
+                  await safelock.createSafe(timeLength, { value: amount })
+              })
+              it("requires the index of the safe to exist", async () => {
+                  await expect(safelock.withdraw("1")).to.be.revertedWith(
+                      "Safe__WithdrawIndexOutOfRange"
+                  )
+              })
+              it("reverts if time has not yet elapsed", async () => {
+                  await expect(safelock.withdraw("0")).to.be.revertedWith("Safe__notYetOpen")
+              })
+              it("reverts if safe is already broken", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  await safelock.withdraw("0")
+                  await expect(safelock.withdraw("0")).to.be.revertedWith("Safe__AlreadyWithdrawn")
+              })
+              it("updates total balance if time has passed", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  await safelock.withdraw("0")
+                  const newTotalBalance = (await safelock.getTotalBalance()).toString()
+                  assert.equal(newTotalBalance, "0")
+              })
+              it("updates safe balance", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  await safelock.withdraw("0")
+                  const newSafeBalance = await safelock.getSafeBalance("0")
+                  assert.equal(newSafeBalance, "0")
+              })
+              it("sets the isBroken boolean to true for that safe", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  await safelock.withdraw("0")
+                  const newSafeIsBrokenBool = (await safelock.getSafes())[0].isBroken
+                  assert.equal(newSafeIsBrokenBool, true)
+              })
+              it("transfers ethereum from the contract to the withdrawer", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  const oldContractBalance = (
+                      await safelock.provider.getBalance(safelock.address)
+                  ).toString()
+                  await safelock.withdraw("0")
+                  const newContractBalance = (
+                      await safelock.provider.getBalance(safelock.address)
+                  ).toString()
+                  assert.equal(oldContractBalance, amount)
+                  assert.equal(newContractBalance, "0")
+              })
+              it("emits an event after withdrawal", async () => {
+                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
+                  expect(await safelock.withdraw("0")).to.emit("SafeWithdrawn")
+              })
+          })
+          describe("view functions", () => {
+              it("gets the safelock owner's first name", async () => {
+                  const ownerFirstName = await safelock.getOwnerFirstName()
+                  assert.equal(firstName, ownerFirstName)
               })
           })
       })

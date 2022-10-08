@@ -23,6 +23,8 @@ contract Safelock {
     //Custom Errors
     error Safe__onlyOwner();
     error Safe__notYetOpen(uint256 timeLeft);
+    error Safe__WithdrawIndexOutOfRange();
+    error Safe__AlreadyWithdrawn();
 
     //Events
     event SafeCreated(address indexed creator, uint256 indexed amount, uint256 timeLength);
@@ -59,17 +61,22 @@ contract Safelock {
     }
 
     function withdraw(uint256 index) public payable onlyOwner {
-        require(index < s_safes.length);
+        if (index >= s_safes.length) {
+            revert Safe__WithdrawIndexOutOfRange();
+        }
         if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
             revert Safe__notYetOpen(
                 s_safes[index].createdTime + s_safes[index].timeLength - block.timestamp
             );
         }
+        if (s_safes[index].isBroken) {
+            revert Safe__AlreadyWithdrawn();
+        }
         uint256 amount = s_safes[index].amount;
         s_totalBalance -= s_safes[index].amount;
         s_safes[index].amount = 0;
         s_safes[index].isBroken = true;
-        payable(msg.sender).transfer(s_safes[index].amount);
+        payable(msg.sender).transfer(amount);
         emit SafeWithdrawn(msg.sender, index, amount);
     }
 

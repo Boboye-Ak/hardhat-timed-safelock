@@ -10,19 +10,19 @@ const networkConfig = {
     80001: {
         name: "mumbai",
         firstName: "Firstname",
-        amount: "100",
+        amount: "0.1",
         timeLength: "300",
     },
     31337: {
         name: "hardhat",
         firstName: "Firstname",
-        amount: "100",
+        amount: "0.1",
         timeLength: "300",
     },
     5: {
         name: "goerli",
         firstName: "Firstname",
-        amount: "100",
+        amount: "0.1",
         timeLength: "300",
     },
 }
