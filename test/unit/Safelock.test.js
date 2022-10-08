@@ -1,8 +1,10 @@
+const hre = require("hardhat")
 const { network, ethers, deployments } = require("hardhat")
 const { developmentChains, networkConfig } = require("../../helper-hardhat-config")
-const hre = require("hardhat")
 
-const { assert, expect } = require("chai")(!developmentChains.includes(network.name))
+const { assert, expect } = require("chai")
+
+!developmentChains.includes(network.name)
     ? describe.skip
     : describe("Safelock", () => {
           let safelockFactory, deployer, user, safelock, safelockAddress
@@ -19,7 +21,16 @@ const { assert, expect } = require("chai")(!developmentChains.includes(network.n
           })
           describe("createSafe", () => {
               it("reverts if value is zero", async () => {
-                  await safelock.createSafe(amount, timeLength)
+                  await expect(safelock.createSafe(timeLength)).to.be.reverted
+              })
+              it("reverts if timeLength is zero", async () => {
+                  await expect(safelock.createSafe("0", { value: amount })).to.be.reverted
+              })
+              it("adds a new safe to the safe array", async () => {
+                  await safelock.createSafe(timeLength, { value: amount })
+                  const safes = await safelock.getSafes()
+                  console.log(safes)
+                  assert.equal(safes.length, 1)
               })
           })
       })
