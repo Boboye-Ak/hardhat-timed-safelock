@@ -49,10 +49,10 @@ contract Safelock {
         s_ownerFirstName = ownerFirstName;
     }
 
-    function createSafe(uint256 _amount, uint256 _timeLength) public payable onlyOwner {
+    function createSafe(uint256 _timeLength) public payable onlyOwner {
         require(msg.value > 0);
         require(_timeLength > 0);
-        Safe memory newSafe = Safe(_amount, block.timestamp, _timeLength, false);
+        Safe memory newSafe = Safe(msg.value, block.timestamp, _timeLength, false);
         s_safes.push(newSafe);
         s_totalBalance += msg.value;
         emit SafeCreated(msg.sender, msg.value, _timeLength);
@@ -86,8 +86,8 @@ contract Safelock {
         uint256 balance = s_safes[index].amount;
         return balance;
     }
-    function getOwnerFirstName()  public view returns (string memory) {
+
+    function getOwnerFirstName() public view returns (string memory) {
         return s_ownerFirstName;
-        
     }
 }
