@@ -25,6 +25,21 @@ const { assert, expect } = require("chai")
                       "SafelockFactory__AlreadyHasSafelock"
                   )
               })
+              it("gets the safelock id of a transaction sending address", async () => {
+                  const id = (await safelockFactory.getMySafelockId()).toString()
+                  assert.equal(id, "1")
+              })
+              it("returns null address when a wallet with no safelock tries to get an address", async () => {
+                  const nullAddress = "0x0"
+                  const attackerSafelockFactory = await safelockFactory.connect(
+                      (
+                          await ethers.getSigners()
+                      )[2]
+                  )
+                  const attackerSafelockAddress =
+                      await attackerSafelockFactory.getMySafelockAddress()
+                  assert.equal(parseInt(attackerSafelockAddress), parseInt(nullAddress))
+              })
           })
           describe("createSafe", () => {
               it("only allows the owner to call", async () => {
