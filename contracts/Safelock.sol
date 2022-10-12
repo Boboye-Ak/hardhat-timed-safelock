@@ -51,6 +51,15 @@ contract Safelock {
         s_ownerFirstName = ownerFirstName;
     }
 
+    //Receive and Fallback Functions
+    receive() external payable {
+        revert();
+    }
+
+    fallback() external payable {
+        revert();
+    }
+
     function createSafe(uint256 _timeLength) public payable onlyOwner {
         require(msg.value > 0);
         require(_timeLength > 0);

@@ -17,6 +17,15 @@ contract SafelockFactory {
         s_latestSafelockId = 0;
     }
 
+    //Receive and Fallback Functions
+    receive() external payable {
+        revert();
+    }
+
+    fallback() external payable {
+        revert();
+    }
+
     //Pure Functions
     function createSafelock(string memory safelockOwnerName) public {
         if (s_hasSafelock[msg.sender] != 0) {
