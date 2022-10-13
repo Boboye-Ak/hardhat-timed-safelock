@@ -83,7 +83,6 @@ contract Safelock {
         }
         uint256 amount = s_safes[index].amount;
         s_totalBalance -= s_safes[index].amount;
-        s_safes[index].amount = 0;
         s_safes[index].isBroken = true;
         payable(msg.sender).transfer(amount);
         emit SafeWithdrawn(msg.sender, index, amount);
