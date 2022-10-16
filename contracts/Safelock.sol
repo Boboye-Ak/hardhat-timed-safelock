@@ -9,6 +9,7 @@ contract Safelock {
         uint256 amount;
         uint256 createdTime;
         uint256 timeLength;
+        address beneficiary;
         bool isBroken;
     }
 
@@ -60,19 +61,24 @@ contract Safelock {
         revert();
     }
 
-    function createSafe(uint256 _timeLength) public payable onlyOwner {
+    function createSafe(uint256 _timeLength, address _beneficiary) public payable onlyOwner {
         require(msg.value > 0);
         require(_timeLength > 0);
-        Safe memory newSafe = Safe(msg.value, block.timestamp, _timeLength, false);
+        Safe memory newSafe = Safe(msg.value, block.timestamp, _timeLength, _beneficiary, false);
         s_safes.push(newSafe);
         s_totalBalance += msg.value;
         emit SafeCreated(msg.sender, msg.value, _timeLength);
     }
 
-    function withdraw(uint256 index) public payable onlyOwner {
+    function withdraw(uint256 index) public payable {
         if (index >= s_safes.length) {
             revert Safe__WithdrawIndexOutOfRange();
         }
+        if ((msg.sender != i_safeLockOwner) && (msg.sender != s_safes[index].beneficiary)) {
+            revert Safe__onlyOwner();
+
+        }
+
         if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
             revert Safe__notYetOpen(
                 s_safes[index].createdTime + s_safes[index].timeLength - block.timestamp

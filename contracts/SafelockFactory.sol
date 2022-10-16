@@ -56,4 +56,9 @@ contract SafelockFactory {
         uint256 id = s_hasSafelock[msg.sender];
         return id;
     }
+    function getSafelockAddressById(uint256 id) public view returns(address){
+        Safelock safelock=s_safelocks[id-1];
+        return address(safelock);
+
+    }
 }
