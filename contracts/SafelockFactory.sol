@@ -7,6 +7,7 @@ import "./Safelock.sol";
 contract SafelockFactory {
     //State Variables
     mapping(address => uint256) s_hasSafelock;
+    mapping(address => uint256) s_safelockToId;
     uint256 s_latestSafelockId;
     Safelock[] s_safelocks;
 
@@ -39,6 +40,7 @@ contract SafelockFactory {
             safelockOwnerName
         );
         s_hasSafelock[msg.sender] = s_latestSafelockId;
+        s_safelockToId[address(newSafelock)] = s_latestSafelockId;
         s_safelocks.push(newSafelock);
     }
 
@@ -56,9 +58,13 @@ contract SafelockFactory {
         uint256 id = s_hasSafelock[msg.sender];
         return id;
     }
-    function getSafelockAddressById(uint256 id) public view returns(address){
-        Safelock safelock=s_safelocks[id-1];
-        return address(safelock);
 
+    function getSafelockAddressById(uint256 id) public view returns (address) {
+        Safelock safelock = s_safelocks[id - 1];
+        return address(safelock);
+    }
+
+    function getSafelockIdByAddress(address safelockAddress) public view returns (uint256) {
+        return s_safelockToId[safelockAddress];
     }
 }

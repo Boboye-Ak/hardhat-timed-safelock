@@ -76,7 +76,6 @@ contract Safelock {
         }
         if ((msg.sender != i_safeLockOwner) && (msg.sender != s_safes[index].beneficiary)) {
             revert Safe__onlyOwner();
-
         }
 
         if (block.timestamp - s_safes[index].createdTime < s_safes[index].timeLength) {
