@@ -24,7 +24,9 @@ task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
  */
 
 const RINKEBY_RPC_URL = process.env.RINKEBY_RPC_URL
-const PRIVATE_KEY = process.env.PRIVATE_KEY
+const DEPLOYER_PRIVATE_KEY = process.env.PRIVATE_KEY
+const USER_PRIVATE_KEY = process.env.USER_PRIVATE_KEY
+const BENEFICIARY_PRIVATE_KEY = process.env.BENEFICIARY_PRIVATE_KEY
 const LOCALHOST_RPC_URL = process.env.LOCALHOST_RPC_URL
 const GOERLI_RPC_URL = process.env.GOERLI_RPC_URL
 const MUMBAI_RPC_URL = process.env.MUMBAI_RPC_URL
@@ -33,7 +35,7 @@ module.exports = {
     networks: {
         ropsten: {
             url: process.env.ROPSTEN_URL || "",
-            accounts: process.env.PRIVATE_KEY !== undefined ? [process.env.PRIVATE_KEY] : [],
+            accounts: [DEPLOYER_PRIVATE_KEY, USER_PRIVATE_KEY, BENEFICIARY_PRIVATE_KEY],
         },
         hardhat: {
             chainId: 31337,
@@ -44,7 +46,7 @@ module.exports = {
             chainId: 4,
             blockConfirmations: 6,
             url: RINKEBY_RPC_URL,
-            accounts: [PRIVATE_KEY],
+            accounts: [DEPLOYER_PRIVATE_KEY, USER_PRIVATE_KEY, BENEFICIARY_PRIVATE_KEY],
         },
         localhost: {
             url: LOCALHOST_RPC_URL,
@@ -54,13 +56,13 @@ module.exports = {
             chainId: 5,
             blockConfirmations: 6,
             url: GOERLI_RPC_URL,
-            accounts: [PRIVATE_KEY],
+            accounts: [DEPLOYER_PRIVATE_KEY, USER_PRIVATE_KEY, BENEFICIARY_PRIVATE_KEY],
         },
         mumbai: {
             chainId: 80001,
             blockConfirmations: 6,
             url: MUMBAI_RPC_URL,
-            accounts: [PRIVATE_KEY],
+            accounts: [DEPLOYER_PRIVATE_KEY, USER_PRIVATE_KEY, BENEFICIARY_PRIVATE_KEY],
         },
     },
     gasReporter: {

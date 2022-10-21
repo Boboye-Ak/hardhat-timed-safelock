@@ -110,4 +110,7 @@ contract Safelock {
     function getOwnerFirstName() public view returns (string memory) {
         return s_ownerFirstName;
     }
+    function getSafelockOwner() public view returns(address){
+        return i_safeLockOwner;
+    }
 }

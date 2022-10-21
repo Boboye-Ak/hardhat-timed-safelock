@@ -2,26 +2,26 @@ const { ethers } = require("hardhat")
 
 const networkConfig = {
     4: {
-        name: "rinkeby",
+        name: "Boboye",
         firstName: "Firstname",
         amount: "100",
         timeLength: "300",
     },
     80001: {
         name: "mumbai",
-        firstName: "Firstname",
+        firstName: "Boboye",
         amount: "0.1",
         timeLength: "300",
     },
     31337: {
         name: "hardhat",
-        firstName: "Firstname",
+        firstName: "Boboye",
         amount: "0.1",
         timeLength: "300",
     },
     5: {
         name: "goerli",
-        firstName: "Firstname",
+        firstName: "Boboye",
         amount: "0.1",
         timeLength: "300",
     },
