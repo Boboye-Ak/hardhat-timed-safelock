@@ -46,39 +46,40 @@ const { assert, expect } = require("chai")
                   const attacker = (await ethers.getSigners())[2]
                   const attackerSafelock = await safelock.connect(attacker)
                   await expect(
-                      attackerSafelock.createSafe(timeLength, { value: amount })
+                      attackerSafelock.createSafe(timeLength, user.address, { value: amount })
                   ).to.be.revertedWith("Safe__onlyOwner")
               })
               it("reverts if value is zero", async () => {
-                  await expect(safelock.createSafe(timeLength)).to.be.reverted
+                  await expect(safelock.createSafe(timeLength, user.address)).to.be.reverted
               })
               it("reverts if timeLength is zero", async () => {
-                  await expect(safelock.createSafe("0", { value: amount })).to.be.reverted
+                  await expect(safelock.createSafe("0", user.address, { value: amount })).to.be
+                      .reverted
               })
               it("adds a new safe to the safe array", async () => {
-                  await safelock.createSafe(timeLength, { value: amount })
+                  await safelock.createSafe(timeLength, user.address, { value: amount })
                   const safes = await safelock.getSafes()
                   assert.equal(safes.length, 1)
               })
               it("increases the safe balance", async () => {
-                  await safelock.createSafe(timeLength, { value: amount })
+                  await safelock.createSafe(timeLength, user.address, { value: amount })
                   const newSafeBalance = (await safelock.getSafeBalance("0")).toString()
                   assert.equal(amount, newSafeBalance)
               })
               it("increases the total balance", async () => {
-                  await safelock.createSafe(timeLength, { value: amount })
+                  await safelock.createSafe(timeLength, user.address, { value: amount })
                   const newTotalBalance = (await safelock.getTotalBalance()).toString()
                   assert.equal(amount, newTotalBalance)
               })
               it("emits an event", async () => {
-                  expect(await safelock.createSafe(timeLength, { value: amount })).to.emit(
+                  expect(await safelock.createSafe(timeLength,user.address, { value: amount })).to.emit(
                       "SafeCreated"
                   )
               })
           })
           describe("withdraw", () => {
               beforeEach(async () => {
-                  await safelock.createSafe(timeLength, { value: amount })
+                  await safelock.createSafe(timeLength, user.address, { value: amount })
               })
               it("requires the index of the safe to exist", async () => {
                   await expect(safelock.withdraw("1")).to.be.revertedWith(
