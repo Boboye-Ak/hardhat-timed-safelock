@@ -12,7 +12,7 @@ const { assert, expect } = require("chai")
           const amount = ethers.utils.parseEther(networkConfig[network.config.chainId]["amount"])
           const timeLength = networkConfig[network.config.chainId]["timeLength"]
           beforeEach(async () => {
-              await deployments.fixture(["all"])
+              await deployments.fixture(["actual-deployment"])
               deployer = (await hre.getNamedAccounts()).deployer
               user = (await ethers.getSigners())[1]
               safelockFactory = await ethers.getContract("SafelockFactory", user)
@@ -59,6 +59,7 @@ const { assert, expect } = require("chai")
               it("adds a new safe to the safe array", async () => {
                   await safelock.createSafe(timeLength, user.address, { value: amount })
                   const safes = await safelock.getSafes()
+                  console.log({safes})
                   assert.equal(safes.length, 1)
               })
               it("increases the safe balance", async () => {
@@ -67,14 +68,17 @@ const { assert, expect } = require("chai")
                   assert.equal(amount, newSafeBalance)
               })
               it("increases the total balance", async () => {
+                  const oldTotalBalance = (await safelock.getTotalBalance()).toString()
+                  console.log({ oldTotalBalance })
                   await safelock.createSafe(timeLength, user.address, { value: amount })
                   const newTotalBalance = (await safelock.getTotalBalance()).toString()
-                  assert.equal(amount, newTotalBalance)
+                  console.log({ newTotalBalance })
+                  assert.equal(amount.toString(), newTotalBalance)
               })
               it("emits an event", async () => {
-                  expect(await safelock.createSafe(timeLength,user.address, { value: amount })).to.emit(
-                      "SafeCreated"
-                  )
+                  expect(
+                      await safelock.createSafe(timeLength, user.address, { value: amount })
+                  ).to.emit("SafeCreated")
               })
           })
           describe("withdraw", () => {
@@ -100,12 +104,7 @@ const { assert, expect } = require("chai")
                   const newTotalBalance = (await safelock.getTotalBalance()).toString()
                   assert.equal(newTotalBalance, "0")
               })
-              it("updates safe balance", async () => {
-                  await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
-                  await safelock.withdraw("0")
-                  const newSafeBalance = await safelock.getSafeBalance("0")
-                  assert.equal(newSafeBalance, "0")
-              })
+
               it("sets the isBroken boolean to true for that safe", async () => {
                   await network.provider.send("evm_increaseTime", [parseInt(timeLength) + 10])
                   await safelock.withdraw("0")

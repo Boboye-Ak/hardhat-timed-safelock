@@ -15,10 +15,13 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
         waitConfirmations: network.config.blockConfirmations || 1,
     })
 
-    if (!developmentChains.includes(network.name) && (process.env.ETHERSCAN_API_KEY||process.env.POLYGONSCAN_API_KEY)) {
+    if (
+        !developmentChains.includes(network.name) &&
+        (process.env.ETHERSCAN_API_KEY || process.env.POLYGONSCAN_API_KEY)
+    ) {
         console.log("verifying...")
         await verify(safelockFactory.address, args)
     }
 }
 
-module.exports.tags = ["all", "safelock-factory"]
+module.exports.tags = ["all", "safelock-factory", "actual-deployment"]

@@ -14,4 +14,4 @@ module.exports = async ({ deployments, getNamedAccounts }) => {
     log(`----------safelock deployed with address ${safelockAddress}----------`)
 }
 
-module.exports.tags = ["all", "Safelock"]
+module.exports.tags = ["all", "Safelock", "actual-deployment"]
